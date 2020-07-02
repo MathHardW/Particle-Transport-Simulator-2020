@@ -12,11 +12,12 @@
 //=================================================================
 typedef struct {
 	double *mi;
-	double *eta;
+	   int *n;
 	double *w;
 } quadratura;
 //=================================================================
-   int* GetMapping(int N);
+   void FillingTheQuadratureStruct(int N);
+   int* GetMapping(int N, int sizeQ);
 double* GetWforQuadrature(int N);
 double* GetMiforQuadrature(int N);
 //=================================================================
