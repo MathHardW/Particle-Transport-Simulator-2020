@@ -24,7 +24,11 @@ void desalocar1DInteger(int *vetor) {
 
 //FUNCTIONS =======================================================
 void FillingTheQuadratureStruct(int N) {
-	int size = N * (N + 2) / 2;
+
+	//TAMANHO DO VETOR COMPLETO [4 QUADRANTES]
+	int size = N * (N + 2) / 2;                        //40
+
+	//MAPEAMENTO DO VETOR
 	int *Mapping = GetMapping(N, size / 4);
 	double *W = GetWforQuadrature(N);
 	double *MI = GetMiforQuadrature(N);
@@ -34,8 +38,8 @@ void FillingTheQuadratureStruct(int N) {
 	q.mi = alocar1DDouble(size);
 	q.n = alocar1DInteger(size);
 
-	int sizeQuad = size / 4;
-	int colSize = sizeQuad / 2;
+	int sizeQuad = size / 4;                      //10
+	int colSize = N / 2;                         //4
 	int ver = 0;
 	int x = 0;
 
@@ -81,6 +85,7 @@ void FillingTheQuadratureStruct(int N) {
 	colSize = sizeQuad / 2;
 	for (int n = 0; n < sizeQuad; n++) {
 		if (ver >= colSize) {
+			colSize--;
 			ver = 0;
 		}
 		//=============================
