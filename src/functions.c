@@ -99,8 +99,9 @@ void FillingTheQuadratureStruct(int N) {
 		ver++;
 	}
 
-	desalocar1DDouble(W);
-	desalocar1DInteger(Mapping);
+	desalocar1DDouble(W); desalocar1DDouble(q.w);
+	desalocar1DDouble(MI); desalocar1DInteger(q.n);
+	desalocar1DInteger(Mapping); desalocar1DDouble(q.mi);
 }
 
 int* GetMapping(int N, int sizeQ) {
