@@ -6,7 +6,7 @@
 #include "header.h"
 //=================================================================
 int main(int argc, char *argv[]) {
-	int N = 8;
+	int N = 4;
 	FillingTheQuadratureStruct(N);
 	return 0;
 }

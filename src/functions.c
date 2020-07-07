@@ -30,22 +30,29 @@ void FillingTheQuadratureStruct(int N) {
 
 	//MAPEAMENTO DO VETOR
 	int *Mapping = GetMapping(N, size / 4);
+
+	//PADRÃO DE PESOS
 	double *W = GetWforQuadrature(N);
+
+	//PADRÃO DE MI'S
 	double *MI = GetMiforQuadrature(N);
 
+	//DECLARAÇÃO DA QUADRATURA
 	quadratura q;
+
+	//ALOCAÇÕES DA QUADRATURA
 	q.w = alocar1DDouble(size);
 	q.mi = alocar1DDouble(size);
-	q.n = alocar1DInteger(size);
+	q.eta = alocar1DDouble(size);
 
+	//TAMANHO DO QUADRANTE
 	int sizeQuad = size / 4;                      //10
+	//TAMANHO DA PRIMEIRA COLUNA
 	int colSize = N / 2;                         //4
+
+	//TEMPORÁRIOS
 	int ver = 0;
 	int x = 0;
-
-	for (int n = 0; n < sizeQuad; n++) {
-		printf("%i ", Mapping[n]);
-	}
 
 	//n ============================================================
 	for (int n = 0; n < sizeQuad; n++) {
@@ -55,17 +62,17 @@ void FillingTheQuadratureStruct(int N) {
 			ver = 0;
 		}
 		//=============================
-		q.n[n] = x;
+		q.eta[n] = MI[x];
 		//=============================
-		q.n[n + sizeQuad] = q.n[n];
-		q.n[n + 2 * sizeQuad] = q.n[n];
-		q.n[n + 3 * sizeQuad] = q.n[n];
+		q.eta[n + sizeQuad] = q.eta[n];
+		q.eta[n + 2 * sizeQuad] = -q.eta[n];
+		q.eta[n + 3 * sizeQuad] = -q.eta[n];
 		//=============================
 		ver++;
 
 	}
 
-	printf("\n\n");
+	//printf("\n\n");
 
 	//PESO =========================================================
 	for (int n = 0; n < sizeQuad; n++) {
@@ -75,39 +82,58 @@ void FillingTheQuadratureStruct(int N) {
 		q.w[n + 2 * sizeQuad] = q.w[n];
 		q.w[n + 3 * sizeQuad] = q.w[n];
 		//=============================
-		printf("%i | %i | W = %f \n", n, Mapping[n], q.w[n]);
+		//printf("%i | %i | W = %f \n", n, Mapping[n], q.w[n]);
 	}
 
-	printf("\n\n");
+	//printf("\n\n");
 
 	//MI ==============================================================
 	ver = 0;
-	colSize = sizeQuad / 2;
+	colSize = N / 2;
 	for (int n = 0; n < sizeQuad; n++) {
-		if (ver >= colSize) {
+		if (ver == colSize) {
 			colSize--;
 			ver = 0;
 		}
 		//=============================
 		q.mi[n] = MI[ver]; //  mi[0] = MI[0]
 		//=============================
-		q.mi[n + sizeQuad] = q.mi[n];
-		q.mi[n + 2 * sizeQuad] = q.mi[n];
+		q.mi[n + sizeQuad] = -q.mi[n];
+		q.mi[n + 2 * sizeQuad] = -q.mi[n];
 		q.mi[n + 3 * sizeQuad] = q.mi[n];
 		//=============================
-		printf("%i | %i | MI = %f \n", n, q.n[n], q.mi[n]);
+		//printf("%i | %f | MI = %f\n", n, q.eta[n], q.mi[n]);
 		ver++;
 	}
 
-	desalocar1DDouble(W); desalocar1DDouble(q.w);
-	desalocar1DDouble(MI); desalocar1DInteger(q.n);
-	desalocar1DInteger(Mapping); desalocar1DDouble(q.mi);
+	for (int n = 0; n < size; n++) {
+		printf("ETA[%i] = %f - MI[%i] = %f - W[%i] = %f \n", n, q.eta[n], n, q.mi[n], n, q.w[n]);
+		if (n == sizeQuad - 1 || n == 2 * sizeQuad - 1
+				|| n == 3 * sizeQuad - 1) {
+			printf("\n");
+		}
+	}
+
+	desalocar1DDouble(W);
+	desalocar1DDouble(q.w);
+	desalocar1DDouble(MI);
+	desalocar1DDouble(q.eta);
+	desalocar1DInteger(Mapping);
+	desalocar1DDouble(q.mi);
 }
 
 int* GetMapping(int N, int sizeQ) {
 	int *map = alocar1DInteger(sizeQ);
 
 	switch (N) {
+	case 2:
+		map[0] = 0;
+		break;
+	case 4:
+		map[0] = 0;
+		map[1] = 0;
+		map[2] = 0;
+		break;
 	case 6:
 		map[0] = 0;
 		map[1] = 1;
@@ -143,6 +169,14 @@ double* GetWforQuadrature(int N) {
 
 	//ALOCANDO E PREENCHENDO OS VETORES ============================
 	switch (N) {
+	case 2:
+		W = alocar1DDouble(1);
+		W[0] = 1;
+		break;
+	case 4:
+		W = alocar1DDouble(1);
+		W[0] = 0.3333333;
+		break;
 	case 6:
 		W = alocar1DDouble(2);
 		W[0] = 0.1761263;
@@ -167,6 +201,15 @@ double* GetMiforQuadrature(int N) {
 
 //ALOCANDO E PREENCHENDO OS VETORES ============================
 	switch (N) {
+	case 2:
+		Mi = alocar1DDouble(1);
+		Mi[0] = 0.5773502692;
+		break;
+	case 4:
+		Mi = alocar1DDouble(2);
+		Mi[0] = 0.3500212;
+		Mi[1] = 0.8688903;
+		break;
 	case 6:
 		Mi = alocar1DDouble(3);
 		Mi[0] = 0.2666355;
