@@ -1,8 +1,11 @@
-//CRIADO POR MATHEUS RIBEIRO | 26/JUN/2020 ========================
-//=================================================================
-#include "header.h"
+//CRIADO POR MATHEUS RIBEIRO | 26/JUN/2020 ====
+//=============================================
 
-//ALOCAÇÕES========================================================
+//HEADER'S ====================================
+#include "header.h"
+//=============================================
+
+//ALLOCATIONS =================================
 double* alocar1DDouble(int tamanho) {
 	double *vetor;
 	vetor = (double*) calloc(tamanho, sizeof(double));
@@ -11,7 +14,7 @@ double* alocar1DDouble(int tamanho) {
 void desalocar1DDouble(double *vetor) {
 	free(vetor);
 }
-
+//=============================================
 int* alocar1DInteger(int tamanho) {
 	int *vetor;
 	vetor = (int*) calloc(tamanho, sizeof(int));
@@ -20,109 +23,39 @@ int* alocar1DInteger(int tamanho) {
 void desalocar1DInteger(int *vetor) {
 	free(vetor);
 }
-//=================================================================
+//=============================================
 
-//FUNCTIONS =======================================================
+// MAIN FUNCTION ==============================
 void FillingTheQuadratureStruct(int N) {
-
-	//TAMANHO DO VETOR COMPLETO [4 QUADRANTES]
-	int size = N * (N + 2) / 2;                        //40
-
-	//MAPEAMENTO DO VETOR
-	int *Mapping = GetMapping(N, size / 4);
-
-	//PADRÃO DE PESOS
-	double *W = GetWforQuadrature(N);
-
-	//PADRÃO DE MI'S
-	double *MI = GetMiforQuadrature(N);
-
 	//DECLARAÇÃO DA QUADRATURA
 	quadratura q;
 
-	//ALOCAÇÕES DA QUADRATURA
-	q.w = alocar1DDouble(size);
-	q.mi = alocar1DDouble(size);
-	q.eta = alocar1DDouble(size);
+	//VETORES PREENCHIDOS [4 QUADRANTES]
+	q.w = GetWFullVector(N);
+	q.eta = GetEtaFullVector(N);
+	q.mi = GetMiFullVector(N);
 
-	//TAMANHO DO QUADRANTE
-	int sizeQuad = size / 4;                      //10
-	//TAMANHO DA PRIMEIRA COLUNA
-	int colSize = N / 2;                         //4
-
-	//TEMPORÁRIOS
-	int ver = 0;
-	int x = 0;
-
-	//n ============================================================
-	for (int n = 0; n < sizeQuad; n++) {
-		if (ver >= colSize) {
-			x++;
-			colSize--;
-			ver = 0;
-		}
-		//=============================
-		q.eta[n] = MI[x];
-		//=============================
-		q.eta[n + sizeQuad] = q.eta[n];
-		q.eta[n + 2 * sizeQuad] = -q.eta[n];
-		q.eta[n + 3 * sizeQuad] = -q.eta[n];
-		//=============================
-		ver++;
-
-	}
-
-	//printf("\n\n");
-
-	//PESO =========================================================
-	for (int n = 0; n < sizeQuad; n++) {
-		q.w[n] = W[Mapping[n]];
-		//=============================
-		q.w[n + sizeQuad] = q.w[n];
-		q.w[n + 2 * sizeQuad] = q.w[n];
-		q.w[n + 3 * sizeQuad] = q.w[n];
-		//=============================
-		//printf("%i | %i | W = %f \n", n, Mapping[n], q.w[n]);
-	}
-
-	//printf("\n\n");
-
-	//MI ==============================================================
-	ver = 0;
-	colSize = N / 2;
-	for (int n = 0; n < sizeQuad; n++) {
-		if (ver == colSize) {
-			colSize--;
-			ver = 0;
-		}
-		//=============================
-		q.mi[n] = MI[ver]; //  mi[0] = MI[0]
-		//=============================
-		q.mi[n + sizeQuad] = -q.mi[n];
-		q.mi[n + 2 * sizeQuad] = -q.mi[n];
-		q.mi[n + 3 * sizeQuad] = q.mi[n];
-		//=============================
-		//printf("%i | %f | MI = %f\n", n, q.eta[n], q.mi[n]);
-		ver++;
-	}
+	//TAMANHO DO VETOR COMPLETO [4 QUADRANTES]
+	int size = N * (N + 2) / 2;
+	int sizeQuad = size / 4;
 
 	for (int n = 0; n < size; n++) {
-		printf("ETA[%i] = %f - MI[%i] = %f - W[%i] = %f \n", n, q.eta[n], n, q.mi[n], n, q.w[n]);
+		printf("ETA[%i] = %f - MI[%i] = %f - W[%i] = %f \n", n, q.eta[n], n,
+				q.mi[n], n, q.w[n]);
 		if (n == sizeQuad - 1 || n == 2 * sizeQuad - 1
 				|| n == 3 * sizeQuad - 1) {
 			printf("\n");
 		}
 	}
 
-	desalocar1DDouble(W);
 	desalocar1DDouble(q.w);
-	desalocar1DDouble(MI);
 	desalocar1DDouble(q.eta);
-	desalocar1DInteger(Mapping);
 	desalocar1DDouble(q.mi);
+//=============================================
 }
 
-int* GetMapping(int N, int sizeQ) {
+//BASE VECTOR'S ===============================
+int* GetMappingBase(int N, int sizeQ) {
 	int *map = alocar1DInteger(sizeQ);
 
 	switch (N) {
@@ -161,40 +94,8 @@ int* GetMapping(int N, int sizeQ) {
 
 	return map;
 }
-
-double* GetWforQuadrature(int N) {
-	//DECLARA O PONTEIRO PARA O PESO ===============================
-	double *W;
-	//==============================================================
-
-	//ALOCANDO E PREENCHENDO OS VETORES ============================
-	switch (N) {
-	case 2:
-		W = alocar1DDouble(1);
-		W[0] = 1;
-		break;
-	case 4:
-		W = alocar1DDouble(1);
-		W[0] = 0.3333333;
-		break;
-	case 6:
-		W = alocar1DDouble(2);
-		W[0] = 0.1761263;
-		W[1] = 0.1572071;
-		break;
-	case 8:
-		W = alocar1DDouble(3);
-		W[0] = 0.1209877;
-		W[1] = 0.0907407;
-		W[2] = 0.0925926;
-		break;
-	}
-//==============================================================
-
-	return W;
-}
-
-double* GetMiforQuadrature(int N) {
+//=============================================
+double* GetMiBase(int N) {
 //DECLARA O PONTEIRO PARA O MI =================================
 	double *Mi;
 //==============================================================
@@ -228,4 +129,147 @@ double* GetMiforQuadrature(int N) {
 
 	return Mi;
 }
-//=================================================================
+//=============================================
+
+//FULL VECTOR'S ===============================
+double* GetMiFullVector(int N) {
+	//TAMANHO DO VETOR COMPLETO [4 QUADRANTES]
+	int size = N * (N + 2) / 2;
+	//TAMANHO DO QUADRANTE
+	int sizeQuad = size / 4;
+	//TAMANHO DA PRIMEIRA COLUNA
+	int colSize = N / 2;
+	//TEMPORÁRIOS
+	int ver = 0;
+
+	//PADRÃO DE MI'S
+	double *MIBase = GetMiBase(N);
+	double *MI = alocar1DDouble(size);
+
+	for (int n = 0; n < sizeQuad; n++) {
+		if (ver == colSize) {
+			colSize--;
+			ver = 0;
+		}
+		//=============================
+		MI[n] = MIBase[ver]; //  mi[0] = MI[0]
+		//=============================
+		MI[n + sizeQuad] = -MI[n];
+		MI[n + 2 * sizeQuad] = -MI[n];
+		MI[n + 3 * sizeQuad] = MI[n];
+		//=============================
+		ver++;
+	}
+
+	desalocar1DDouble(MIBase);
+
+	return MI;
+}
+//=============================================
+double* GetEtaFullVector(int N) {
+	//TAMANHO DO VETOR COMPLETO [4 QUADRANTES]
+	int size = N * (N + 2) / 2;
+	//MI BASE
+	double *MI = GetMiBase(N);
+	double *ETA = alocar1DDouble(size);
+
+	//TAMANHO DO QUADRANTE
+	int sizeQuad = size / 4;
+	//TAMANHO DA PRIMEIRA COLUNA
+	int colSize = N / 2;
+
+	//TEMPORÁRIOS
+	int ver = 0;
+	int x = 0;
+
+	//INTERANDO E ARMAZENANDO OS ETA'S DE ACORDO COM O MAPEAMENTO DE MI'S
+	for (int n = 0; n < sizeQuad; n++) {
+		if (ver >= colSize) {
+			x++;
+			colSize--;
+			ver = 0;
+		}
+		//=============================
+		ETA[n] = MI[x];
+		//=============================
+		ETA[n + sizeQuad] = ETA[n];
+		ETA[n + 2 * sizeQuad] = -ETA[n];
+		ETA[n + 3 * sizeQuad] = -ETA[n];
+		//=============================
+		ver++;
+	}
+
+	desalocar1DDouble(MI);
+
+	return ETA;
+}
+//=============================================
+double* GetWFullVector(int N) {
+	//TAMANHO DO VETOR
+	int size = N * (N + 2) / 2;
+	//TAMANHO DO QUADRANTE
+	int sizeQuad = size / 4;
+
+	//DECLARA OS PONTEIRO
+	int *Mapping = GetMappingBase(N, sizeQuad);
+	double *W = alocar1DDouble(size);
+	double *WBase;
+
+	//ALOCANDO E PREENCHENDO OS VETORES DE PESO BASE
+	switch (N) {
+	case 2:
+		WBase = alocar1DDouble(1);
+		WBase[0] = 1;
+		break;
+	case 4:
+		WBase = alocar1DDouble(1);
+		WBase[0] = 0.3333333;
+		break;
+	case 6:
+		WBase = alocar1DDouble(2);
+		WBase[0] = 0.1761263;
+		WBase[1] = 0.1572071;
+		break;
+	case 8:
+		WBase = alocar1DDouble(3);
+		WBase[0] = 0.1209877;
+		WBase[1] = 0.0907407;
+		WBase[2] = 0.0925926;
+		break;
+	}
+
+	//INTERANDO E ARMAZENANDO OS PESOS DE ACORDO COM O MAPEAMENTO
+	for (int n = 0; n < sizeQuad; n++) {
+		W[n] = WBase[Mapping[n]];
+		//=============================
+		W[n + sizeQuad] = W[n];
+		W[n + 2 * sizeQuad] = W[n];
+		W[n + 3 * sizeQuad] = W[n];
+		//=============================
+	}
+
+	//DESALOCAÇÃO
+	desalocar1DDouble(WBase);
+	desalocar1DInteger(Mapping);
+
+	return W;
+}
+//=============================================
+
+/*DadosEntrada Ler(char nomeArquivo[]) {
+	FILE *arq;
+	DadosEntrada dado;
+
+	// ABRE O ARQUIVO DE TEXTO PARA LEITURA
+	arq = fopen(nomeArquivo, "rt");
+	if (arq == NULL) {
+		printf("Erro de Leitura");
+		dado.numReg = 0;
+		return dado;
+	}
+
+	while (fgets(contador, 100, arquivo) != NULL) {
+		strcpy(tmpdados, contador);
+		printf("\n%s", contador); //EXIBIR AS INFORMAÇÕES
+	}
+}*/
